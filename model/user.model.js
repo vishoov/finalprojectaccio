@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         enum:['user', 'admin', 'seller'],
         default:'user'
-    }
+    },
 });
 
 //password hashing

@@ -1,15 +1,26 @@
 const router = require('express').Router();
 const User = require('../model/user.model');
 const { getUsers } = require('../controller/user.controller');
-
+const { auth, createToken } = require('../auth/middleware.auth');
 
 //get all users
 
-router.get('/getUserDetails/:id', getUsers);
+router.get('/getUserDetails/:id', auth, getUsers);
+
+
+router.get("/users", async (req, res)=>{
+    try{
+        const users = await User.find();
+        res.status(200).json(users);
+    }
+    catch(err){
+        res.status(400).json(err);
+    }
+})
 
 
 //login
-router.post('/login', async (req, res) => {
+router.post('/login',async (req, res) => {
 
     try {
 
@@ -21,7 +32,8 @@ router.post('/login', async (req, res) => {
 
     const user = await User.findOne({ email });  
     console.log(user);
-      
+    const token = await createToken(user);
+    console.log(token);
 
     if (!user) {
             
@@ -34,7 +46,7 @@ router.post('/login', async (req, res) => {
         }
 
     // const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login Successful', user});
+    res.status(200).json({ message: 'Login Successful', user, token:token});
 
 
     } catch (error) {
@@ -54,7 +66,9 @@ router.post("/register", async (req, res) => {
         
         const user = new User(req.body);
         const result = await user.save();
-        res.status(201).json({ message: "User registered successfully", user: result });
+
+        const token = await createToken(user);
+        res.status(201).json({ message: "User registered successfully", user: result, token:token });
 
     } catch (error) {
 
@@ -66,7 +80,7 @@ router.post("/register", async (req, res) => {
 
 
 //update user
-router.put("/:id", async (req, res)=>{
+router.put("/:id", auth, async (req, res)=>{
     try{
         const updateduser = req.body;
         const user = await User.findByIdAndUpdate(req.params.id, {
@@ -83,7 +97,7 @@ router.put("/:id", async (req, res)=>{
 
 
 //delete user
-router.delete('/delete/:id',async (req,res)=>{
+router.delete('/delete/:id', auth, async (req,res)=>{
 try{
     const id=req.params.id;
     const user = await User.findByIdAndDelete(id);
@@ -96,7 +110,7 @@ catch(err){
 
 
 //logout
-router.get('/logout', async (req, res) => {
+router.get('/logout', auth, async (req, res) => {
     try {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logout Successful' });

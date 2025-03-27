@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/user.routes');
+const productRoutes = require('./routes/product.routes');
 require('dotenv').config();
 
 //database connection logic
@@ -15,6 +16,7 @@ mongoose.connect(process.env.MONGO_URL)
 app.use(express.json());
 
 app.use('/user', userRoutes);
+app.use("/product", productRoutes);
 app.get("/", (req, res)=>{
     res.sendFile(__dirname + '/index.html');
 })
