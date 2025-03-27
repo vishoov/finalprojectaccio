@@ -37,3 +37,4 @@
 //jiohotstar -> Champion's Trophy -> 89Cr
 
 //containerization, virtualization, cloud computing
+//virtualization -> 1 server -> 1000 instances -> 1000 servers
